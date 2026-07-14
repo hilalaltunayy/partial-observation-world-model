@@ -1,6 +1,6 @@
 # Partial Observation World Model
 
-This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation includes the deterministic environment baseline and a professional dark-themed Pygame viewer for inspecting the full `20x20` world alongside the observer's local view.
+This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation includes the deterministic environment baseline, a professional dark-themed Pygame viewer, deterministic rollout dataset generation, and a local CPU-compatible world-model smoke-training scaffold.
 
 ## Local Setup
 
@@ -39,13 +39,13 @@ Controls:
 ## Run Tests
 
 ```powershell
-python -m pytest
+.venv\Scripts\python.exe -m pytest
 ```
 
 ## Generate the Dataset
 
 ```powershell
-python -m src.data.generate --episodes 300 --steps 50 --seed 42
+.venv\Scripts\python.exe -m src.data.generate --episodes 300 --steps 50 --seed 42
 ```
 
 This command generates deterministic rollout splits and writes:
@@ -67,6 +67,28 @@ The generated transitions contain:
 - observer position
 - scripted-agent positions
 
+## World-Model Smoke Test
+
+```powershell
+.venv\Scripts\python.exe -m src.training.train_world_model --data-dir data/generated --device cpu --smoke-test
+```
+
+This runs a tiny deterministic one-epoch CPU pass over a small subset of the generated train and validation sequences and saves the best validation checkpoint under `checkpoints/`.
+
+## World-Model Training
+
+```powershell
+.venv\Scripts\python.exe -m src.training.train_world_model --data-dir data/generated --epochs 2 --batch-size 32 --sequence-length 8 --device cpu
+```
+
+The training scaffold:
+
+- loads train and validation NPZ splits
+- builds fixed-length contiguous sequences per episode
+- trains a small encoder-GRU-decoder model on CPU
+- reports total loss, overall binary accuracy, and per-channel binary accuracies
+- saves the best validation checkpoint and metadata under `checkpoints/`
+
 ## Current Scope
 
 Implemented now:
@@ -78,12 +100,10 @@ Implemented now:
 - configurable local observation extraction
 - dark-themed Pygame viewer with full-grid and local-view panels
 - deterministic rollout dataset generation with manifest and dataset card
+- CPU-compatible Phase 1 world-model scaffold and smoke-training CLI
 - unit tests for core environment behavior
 
 Not implemented yet:
 
-- PyTorch models
-- dataset generation
-- training
 - planning or reinforcement learning
 - anomaly detection
