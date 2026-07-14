@@ -89,6 +89,18 @@ The training scaffold:
 - reports total loss, overall binary accuracy, and per-channel binary accuracies
 - saves the best validation checkpoint and metadata under `checkpoints/`
 
+## Google Colab Notebook
+
+Use `notebooks/world_model_training_colab.ipynb` for a fresh Colab workflow that:
+
+- clones the repository and checks out the `dev` branch
+- installs the project and plotting dependency
+- regenerates the deterministic dataset when needed
+- trains the existing encoder-GRU-decoder world model with configurable settings
+- evaluates the best checkpoint and exports it as a zip bundle
+
+The notebook reuses the repository's existing dataset CLI, model code, training utilities, and checkpoint format instead of duplicating implementation inside notebook cells.
+
 ## Current Scope
 
 Implemented now:

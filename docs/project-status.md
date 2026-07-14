@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 1 world-model scaffold and local smoke-training milestone.
+Phase 1 world-model scaffold, local smoke-training, and Google Colab notebook milestone.
 
 ## Completed Work
 
@@ -44,6 +44,13 @@ Phase 1 world-model scaffold and local smoke-training milestone.
   - CPU-compatible training CLI with smoke-test mode
   - best-validation checkpoint and metadata saving
   - local smoke-training verified under `.venv\Scripts\python.exe`
+- Google Colab training notebook milestone has been implemented:
+  - fresh-runtime repository clone and `dev` branch checkout flow
+  - automatic CUDA-or-CPU device selection with runtime summary output
+  - deterministic dataset presence check with CLI regeneration fallback
+  - configurable training cell that reuses the existing model and training utilities
+  - best-checkpoint reload, validation/test evaluation, and compact qualitative plots
+  - checkpoint listing, zip export, and Colab download flow
 - Unit tests have been added for deterministic reset, movement, collisions, scripted motion, and local observation boundaries.
 - Unit tests now also cover dataset determinism, alignment, manifest output, save/load behavior, sequence loading, model forward shape, optimizer step, and checkpoint reload.
 - README has been updated with local setup, visualization run instructions, dataset-generation commands, and world-model training commands.
@@ -51,11 +58,11 @@ Phase 1 world-model scaffold and local smoke-training milestone.
 
 ## Current Task
 
-Keeping the dataset, model, and checkpoint interfaces stable after the first successful local smoke-training run.
+Keeping the dataset, model, checkpoint, and Colab notebook workflow aligned while preparing for larger training runs and richer evaluation.
 
 ## Next Task
 
-Evaluate the trained baseline qualitatively and quantitatively, then add lightweight model output inspection before moving toward planning.
+Use the Colab notebook to run longer baseline training, inspect prediction quality more deeply, and then add lightweight model output inspection before moving toward planning.
 
 ## Known Issues
 
