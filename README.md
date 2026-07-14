@@ -1,6 +1,6 @@
 # Partial Observation World Model
 
-This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation covers only the first environment milestone: a deterministic `20x20` grid world with static obstacles, one observer agent, two scripted moving agents, and a configurable `7x7` local observation.
+This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation includes the deterministic environment baseline and a professional dark-themed Pygame viewer for inspecting the full `20x20` world alongside the observer's local view.
 
 ## Local Setup
 
@@ -14,7 +14,27 @@ python -m pip install --upgrade pip
 python -m pip install -e .[dev]
 ```
 
-If Python `3.14` fails to install compatible wheels for required packages, use Python `3.11` or `3.12` locally instead. The code is intentionally kept compatible with that fallback workflow.
+If Python `3.14` fails to install compatible wheels for required packages, especially `pygame`, use Python `3.11` or `3.12` locally instead. The code is intentionally kept compatible with that fallback workflow.
+
+## Run the Visualization
+
+```powershell
+python -m src.visualization.app
+```
+
+Optional:
+
+```powershell
+python -m src.visualization.app --seed 7
+```
+
+Controls:
+
+- `Space`: pause or resume playback
+- `R`: reset the episode using the current seed
+- `Arrow keys`: manually move the observer and advance scripted agents
+- `N`: advance one step while paused
+- `Esc`: exit
 
 ## Run Tests
 
@@ -31,11 +51,11 @@ Implemented now:
 - observer movement with collision handling
 - two scripted moving agents
 - configurable local observation extraction
+- dark-themed Pygame viewer with full-grid and local-view panels
 - unit tests for core environment behavior
 
 Not implemented yet:
 
-- Pygame visualization
 - PyTorch models
 - dataset generation
 - training

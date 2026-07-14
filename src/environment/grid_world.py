@@ -6,7 +6,10 @@ import random
 
 import numpy as np
 
-from observation.local_view import extract_local_observation
+try:
+    from observation.local_view import extract_local_observation
+except ModuleNotFoundError:  # pragma: no cover - supports `python -m src.visualization.app`
+    from src.observation.local_view import extract_local_observation
 
 
 class Action(IntEnum):

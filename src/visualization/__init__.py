@@ -1,1 +1,1 @@
-"""Reserved for future visualization utilities."""
+"""Pygame-based visualization for the grid-world environment."""

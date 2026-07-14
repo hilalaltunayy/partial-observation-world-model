@@ -14,4 +14,6 @@ src/partial_observation_world_model.egg-info/top_level.txt
 src/planning/__init__.py
 src/training/__init__.py
 src/visualization/__init__.py
+src/visualization/app.py
+src/visualization/viewer.py
 tests/test_grid_world.py
