@@ -2,41 +2,57 @@
 
 ## Current Phase
 
-Architecture planning.
+Phase 1 environment milestone implementation.
 
 ## Completed Work
 
 - Repository setup is complete.
-- Initial project documentation scaffold has been defined.
-- Phase structure has been clarified as:
-  - Phase 1: simulation, dataset pipeline, world-model training, visualization
-  - Phase 2A: simplified model-based planning
-  - Phase 2B: optional small model-based RL extension
+- Initial architecture, roadmap, and technical decision documents are in place.
+- Minimal `src/` package structure has been created for:
+  - `environment`
+  - `observation`
+  - `data`
+  - `models`
+  - `training`
+  - `visualization`
+  - `planning`
+- First environment milestone has been implemented:
+  - deterministic `20x20` grid world
+  - static obstacles
+  - one observer agent
+  - two scripted moving agents
+  - four-direction movement with boundary and obstacle collision handling
+  - configurable `7x7` local observation with explicit out-of-bounds masking
+- Unit tests have been added for deterministic reset, movement, collisions, scripted motion, and local observation boundaries.
+- README has been updated with local setup and test instructions.
 
 ## Current Task
 
-Refining the architecture, technical boundaries, and implementation plan before writing source code.
+Verifying the first environment milestone and preparing for the next Phase 1 slice.
 
 ## Next Task
 
-Create the initial implementation plan for the grid-world environment and observation extraction, then begin Phase 1 code scaffolding in small reviewable steps.
+Implement the next narrow Phase 1 milestone: cleaner environment configuration ergonomics, richer environment tests, and the first data-collection scaffolding without introducing training or planning.
 
 ## Known Issues
 
-- Local Python version is `3.14`, which may create package compatibility issues for PyTorch and Pygame.
-- No source implementation exists yet.
-- Dataset format, evaluation metrics, and planning objective still need final implementation-level specification.
+- Local Python version is `3.14`, which may create package compatibility issues for some ecosystem packages as the project grows.
+- The current milestone uses placeholder packages for future modules that are not implemented yet.
+- No visualization, dataset generation, model training, or planning logic exists yet.
 
 ## Recent Decisions
 
-- Keep the architecture minimal and extensible rather than feature-heavy.
-- Use an encoder-GRU-decoder as the first world-model baseline.
-- Use Pygame for local professional visualization.
-- Delay reinforcement learning until after a working planning baseline exists.
-- Use Google Colab for heavier GPU training rather than adding cloud infrastructure.
+- Keep the first implementation milestone focused strictly on deterministic environment mechanics and observation extraction.
+- Represent local observations as four channels:
+  - obstacles
+  - scripted agents
+  - observer location
+  - out-of-bounds mask
+- Use `numpy` and `pytest` only for this milestone to keep dependencies minimal.
+- Preserve a `reset()` and `step()` interface that can later support data generation and planning without a redesign.
 
 ## Handoff Notes
 
-- Read `docs/architecture.md` before implementing code.
-- Read `docs/roadmap.md` to stay within phase boundaries.
-- Record any meaningful completed work here so future contributors have an accurate snapshot.
+- Read `docs/architecture.md` before modifying code.
+- Stay within the Phase 1 scope defined in `docs/roadmap.md`.
+- Update this file after meaningful completed work so the current repo state remains easy to hand off.

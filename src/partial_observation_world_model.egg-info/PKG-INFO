@@ -1,3 +1,13 @@
+Metadata-Version: 2.4
+Name: partial-observation-world-model
+Version: 0.1.0
+Summary: Partial observation grid-world baseline for autonomous navigation experiments.
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: numpy<3.0,>=1.26
+Provides-Extra: dev
+Requires-Dist: pytest<9.0,>=8.0; extra == "dev"
+
 # Partial Observation World Model
 
 This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation covers only the first environment milestone: a deterministic `20x20` grid world with static obstacles, one observer agent, two scripted moving agents, and a configurable `7x7` local observation.

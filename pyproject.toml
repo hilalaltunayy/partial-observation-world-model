@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "partial-observation-world-model"
+version = "0.1.0"
+description = "Partial observation grid-world baseline for autonomous navigation experiments."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0,<9.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
