@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 1 visualization milestone implementation.
+Phase 1 dataset-generation milestone implementation.
 
 ## Completed Work
 
@@ -29,23 +29,34 @@ Phase 1 visualization milestone implementation.
   - compact info panel with step, position, last action, seed, and playback state
   - keyboard controls for pause, reset, manual movement, single-step advance, and exit
   - rendering kept separate from environment logic in `src/visualization`
+- Dataset-generation milestone has been implemented:
+  - deterministic rollout collection in `src/data`
+  - compressed NumPy train, validation, and test split export
+  - machine-readable `manifest.json`
+  - human-readable `DATASET_CARD.md`
+  - CLI entry point for reproducible split generation
+  - version-controlled dataset reference document in `docs/dataset.md`
 - Unit tests have been added for deterministic reset, movement, collisions, scripted motion, and local observation boundaries.
-- README has been updated with local setup, visualization run instructions, and controls.
+- Unit tests now also cover dataset determinism, alignment, manifest output, and save/load behavior.
+- README has been updated with local setup, visualization run instructions, controls, and dataset-generation commands.
+- Git ignore rules now keep generated `.npz` datasets out of version control while preserving repository documentation in `docs/`.
 
 ## Current Task
 
-Verifying the visualization milestone and preserving environment test stability.
+Keeping generated dataset artifacts out of Git while preserving version-controlled dataset documentation.
 
 ## Next Task
 
-Begin the next narrow Phase 1 milestone: trajectory/data scaffolding for environment rollouts, while keeping visualization and environment concerns separate from later model code.
+Begin the next narrow Phase 1 milestone: world-model training scaffolding that consumes the generated observation-action-next-observation datasets without introducing planning yet.
 
 ## Known Issues
 
 - Local Python version is `3.14`, which may create package compatibility issues for some ecosystem packages as the project grows.
 - The current milestone uses placeholder packages for future modules that are not implemented yet.
 - `pygame` availability on Python `3.14` remains a potential installation risk on some machines even though the code path is now in place.
-- No dataset generation, model training, or planning logic exists yet.
+- The current dataset uses a simple seeded-random observer policy and does not yet cover richer behavior policies.
+- No model training or planning logic exists yet.
+- The generated manifest and dataset card in `data/generated/` are reproducible outputs and should not be treated as the primary version-controlled documentation source.
 
 ## Recent Decisions
 
@@ -56,6 +67,8 @@ Begin the next narrow Phase 1 milestone: trajectory/data scaffolding for environ
   - observer location
   - out-of-bounds mask
 - Add `pygame` only at the point where the visualization milestone is implemented.
+- Use compressed `.npz` files plus a JSON manifest and dataset card for the first offline dataset format.
+- Keep stable project-facing dataset documentation under `docs/`, while generated dataset artifacts remain reproducible outputs.
 - Preserve a `reset()` and `step()` interface that can later support data generation and planning without a redesign.
 
 ## Handoff Notes

@@ -42,6 +42,31 @@ Controls:
 python -m pytest
 ```
 
+## Generate the Dataset
+
+```powershell
+python -m src.data.generate --episodes 300 --steps 50 --seed 42
+```
+
+This command generates deterministic rollout splits and writes:
+
+- `data/generated/train.npz`
+- `data/generated/validation.npz`
+- `data/generated/test.npz`
+- `data/generated/manifest.json`
+- `data/generated/DATASET_CARD.md`
+
+The generated transitions contain:
+
+- current local observation
+- observer action
+- next local observation
+- episode id
+- time step
+- episode seed
+- observer position
+- scripted-agent positions
+
 ## Current Scope
 
 Implemented now:
@@ -52,6 +77,7 @@ Implemented now:
 - two scripted moving agents
 - configurable local observation extraction
 - dark-themed Pygame viewer with full-grid and local-view panels
+- deterministic rollout dataset generation with manifest and dataset card
 - unit tests for core environment behavior
 
 Not implemented yet:

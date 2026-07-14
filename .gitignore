@@ -4,7 +4,9 @@ __pycache__/
 .env
 .vscode/
 .idea/
-data/generated/
+data/generated/*.npz
+data/generated/manifest.json
+data/generated/DATASET_CARD.md
 checkpoints/
 outputs/
 *.pt
