@@ -1,6 +1,6 @@
 # Partial Observation World Model
 
-This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation includes the deterministic environment baseline, a professional dark-themed Pygame viewer, deterministic rollout dataset generation, and a local CPU-compatible world-model smoke-training scaffold.
+This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation includes the deterministic environment baseline, a professional dark-themed Pygame viewer, deterministic rollout dataset generation, a local CPU-compatible world-model smoke-training scaffold, and checkpoint-based Phase 1 evaluation utilities.
 
 ## Local Setup
 
@@ -26,7 +26,18 @@ Optional:
 
 ```powershell
 python -m src.visualization.app --seed 7
+python -m src.visualization.app --checkpoint checkpoints/colab_world_model/world_model_best.pt --metadata checkpoints/colab_world_model/world_model_best.metadata.json --device cpu
 ```
+
+The visualization now keeps the full ground-truth map visible while also showing:
+
+- the current local observation
+- the model-predicted next observation
+- the real next observation after the action
+- a compact prediction-error view
+- a model panel with checkpoint name, one-step prediction loss, and selected device
+
+If the checkpoint files are missing or incompatible, the viewer stays open and shows a clear model-status message instead of crashing.
 
 Controls:
 
@@ -89,6 +100,20 @@ The training scaffold:
 - reports total loss, overall binary accuracy, and per-channel binary accuracies
 - saves the best validation checkpoint and metadata under `checkpoints/`
 
+## World-Model Evaluation
+
+```powershell
+.venv\Scripts\python.exe -m src.evaluation.evaluate_world_model --checkpoint checkpoints/colab_world_model/world_model_best.pt --metadata checkpoints/colab_world_model/world_model_best.metadata.json --data-dir data/generated --split test --device cpu
+```
+
+The evaluation CLI:
+
+- rebuilds the world model from the metadata JSON
+- loads the trained weights on CPU or another selected device
+- evaluates the chosen split with BCE loss and overall binary accuracy
+- reports per-channel precision, recall, F1 score, and IoU
+- compares the trained model against a persistence baseline that predicts the next observation as unchanged
+
 ## Google Colab Notebook
 
 Use `notebooks/world_model_training_colab.ipynb` for a fresh Colab workflow that:
@@ -113,6 +138,8 @@ Implemented now:
 - dark-themed Pygame viewer with full-grid and local-view panels
 - deterministic rollout dataset generation with manifest and dataset card
 - CPU-compatible Phase 1 world-model scaffold and smoke-training CLI
+- reusable checkpoint loading and evaluation CLI
+- checkpoint-backed Pygame prediction viewer
 - unit tests for core environment behavior
 
 Not implemented yet:

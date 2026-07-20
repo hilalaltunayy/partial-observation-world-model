@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 1 world-model scaffold, local smoke-training, and Google Colab notebook milestone.
+Phase 1 completion milestone with checkpoint evaluation and prediction-backed visualization.
 
 ## Completed Work
 
@@ -51,18 +51,24 @@ Phase 1 world-model scaffold, local smoke-training, and Google Colab notebook mi
   - configurable training cell that reuses the existing model and training utilities
   - best-checkpoint reload, validation/test evaluation, and compact qualitative plots
   - checkpoint listing, zip export, and Colab download flow
+- Phase 1 completion milestone has been implemented:
+  - reusable checkpoint loader that reconstructs the world model from metadata JSON
+  - test-split evaluation CLI with BCE loss, overall accuracy, and per-channel precision/recall/F1/IoU
+  - persistence baseline comparison using the same metrics
+  - Pygame integration for current-view, predicted-next, real-next, and prediction-error inspection
+  - compact model-status panel with checkpoint name, device, and one-step prediction loss
 - Unit tests have been added for deterministic reset, movement, collisions, scripted motion, and local observation boundaries.
-- Unit tests now also cover dataset determinism, alignment, manifest output, save/load behavior, sequence loading, model forward shape, optimizer step, and checkpoint reload.
-- README has been updated with local setup, visualization run instructions, dataset-generation commands, and world-model training commands.
+- Unit tests now also cover dataset determinism, alignment, manifest output, save/load behavior, sequence loading, model forward shape, optimizer step, checkpoint reload, evaluation metrics, persistence baseline behavior, and prediction-state preparation.
+- README has been updated with local setup, visualization run instructions, dataset-generation commands, world-model training commands, and checkpoint evaluation commands.
 - Git ignore rules now keep generated `.npz` datasets out of version control while preserving repository documentation in `docs/`.
 
 ## Current Task
 
-Keeping the dataset, model, checkpoint, and Colab notebook workflow aligned while preparing for larger training runs and richer evaluation.
+Stabilizing the completed Phase 1 baseline after adding checkpoint evaluation and local qualitative prediction inspection.
 
 ## Next Task
 
-Use the Colab notebook to run longer baseline training, inspect prediction quality more deeply, and then add lightweight model output inspection before moving toward planning.
+Begin the Phase 2A planning baseline using the now-verified trained checkpoint, evaluation CLI, and prediction-enabled viewer.
 
 ## Known Issues
 
@@ -73,6 +79,7 @@ Use the Colab notebook to run longer baseline training, inspect prediction quali
 - The world-model scaffold is intentionally small and CPU-friendly, so prediction quality should be treated as a baseline rather than a finished model.
 - No planning logic exists yet.
 - The generated manifest and dataset card in `data/generated/` are reproducible outputs and should not be treated as the primary version-controlled documentation source.
+- The current prediction viewer performs one-step local prediction inspection and is not yet a full policy or planning interface.
 
 ## Recent Decisions
 

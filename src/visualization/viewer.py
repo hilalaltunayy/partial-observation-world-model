@@ -10,6 +10,11 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - supports `python -m src.visualization.app`
     from src.environment import Action, GridWorldConfig, GridWorldState
 
+try:
+    from visualization.prediction import PredictionState
+except ModuleNotFoundError:  # pragma: no cover - supports `python -m src.visualization.app`
+    from src.visualization.prediction import PredictionState
+
 
 @dataclass(frozen=True)
 class ViewerTheme:
@@ -38,6 +43,8 @@ class GridWorldViewer:
         self.info_panel_width = 280
         self.side_panel_gap = 18
         self.footer_height = 52
+        self.preview_gap = 10
+        self.preview_cell_size = 14
 
         self._title_font = pygame.font.SysFont("segoeui", 22, bold=True)
         self._label_font = pygame.font.SysFont("segoeui", 17, bold=True)
@@ -52,7 +59,8 @@ class GridWorldViewer:
         self.content_height = max(full_grid_pixels, local_grid_pixels)
         self.title_band_height = self.title_top_padding + self._title_font.get_height() + self.title_bottom_gap
         self.info_panel_height = 228
-        self.legend_panel_height = self.content_height - self.info_panel_height - self.side_panel_gap
+        self.model_panel_height = 126
+        self.legend_panel_height = self.content_height - self.info_panel_height - self.model_panel_height - (2 * self.side_panel_gap)
         content_width = (
             full_grid_pixels
             + self.section_gap
@@ -74,6 +82,7 @@ class GridWorldViewer:
         last_action: Action | None,
         episode_seed: int,
         is_paused: bool,
+        prediction_state: PredictionState,
     ) -> None:
         surface.fill(self.theme.background)
 
@@ -99,7 +108,8 @@ class GridWorldViewer:
 
         self._draw_full_grid(surface, state, full_grid_origin)
         self._draw_local_view(surface, local_observation, local_grid_origin)
-        self._draw_info_panel(surface, state, last_action, episode_seed, is_paused, info_origin)
+        self._draw_prediction_strip(surface, prediction_state, local_grid_origin)
+        self._draw_info_panel(surface, state, last_action, episode_seed, is_paused, info_origin, prediction_state)
         self._draw_footer(surface)
 
     def _draw_panel_title(self, surface: pygame.Surface, text: str, position: tuple[int, int]) -> None:
@@ -187,6 +197,49 @@ class GridWorldViewer:
                 if local_observation[2, row, col] == 1:
                     self._draw_observer(surface, cell_rect)
 
+    def _draw_prediction_strip(
+        self,
+        surface: pygame.Surface,
+        prediction_state: PredictionState,
+        origin: tuple[int, int],
+    ) -> None:
+        strip_top = origin[1] + self.config.local_view_size * self.local_cell_size + 18
+        strip_label = self._label_font.render("One-Step Prediction", True, self.theme.text_primary)
+        surface.blit(strip_label, (origin[0], strip_top))
+
+        grid_pixels = self.config.local_view_size * self.preview_cell_size
+        preview_top = strip_top + self._label_font.get_height() + 10
+        preview_specs = [
+            ("Predicted next", prediction_state.predicted_next_observation, False),
+            ("Real next", prediction_state.real_next_observation, False),
+            ("Error", prediction_state.absolute_prediction_error, True),
+        ]
+
+        current_x = origin[0]
+        for label, observation, is_error in preview_specs:
+            panel_rect = pygame.Rect(current_x, preview_top, grid_pixels + 16, grid_pixels + 42)
+            self._draw_panel_box(surface, panel_rect, radius=10)
+            label_surface = self._small_font.render(label, True, self.theme.text_primary)
+            surface.blit(label_surface, (panel_rect.left + 8, panel_rect.top + 8))
+            if observation is None:
+                placeholder = self._small_font.render("Unavailable", True, self.theme.text_secondary)
+                surface.blit(
+                    placeholder,
+                    (
+                        panel_rect.left + 8,
+                        panel_rect.top + 16 + max(0, (grid_pixels - placeholder.get_height()) // 2),
+                    ),
+                )
+            else:
+                self._draw_compact_grid(
+                    surface,
+                    observation,
+                    (panel_rect.left + 8, panel_rect.top + 24),
+                    self.preview_cell_size,
+                    is_error=is_error,
+                )
+            current_x += panel_rect.width + self.preview_gap
+
     def _draw_scripted_agent(self, surface: pygame.Surface, cell_rect: pygame.Rect) -> None:
         radius = max(6, cell_rect.width // 4)
         center = cell_rect.center
@@ -221,6 +274,7 @@ class GridWorldViewer:
         episode_seed: int,
         is_paused: bool,
         origin: tuple[int, int],
+        prediction_state: PredictionState,
     ) -> None:
         panel_rect = pygame.Rect(origin[0], origin[1], self.info_panel_width, self.info_panel_height)
         self._draw_panel_box(surface, panel_rect)
@@ -259,7 +313,35 @@ class GridWorldViewer:
                     width=1,
                 )
 
-        legend_top = panel_rect.bottom + self.side_panel_gap
+        model_top = panel_rect.bottom + self.side_panel_gap
+        model_rect = pygame.Rect(origin[0], model_top, self.info_panel_width, self.model_panel_height)
+        self._draw_panel_box(surface, model_rect)
+        model_title = self._label_font.render("Model Panel", True, self.theme.text_primary)
+        surface.blit(model_title, (model_rect.left + 16, model_rect.top + 14))
+
+        loss_text = "N/A" if prediction_state.prediction_loss is None else f"{prediction_state.prediction_loss:.4f}"
+        model_lines = [
+            ("Checkpoint", prediction_state.checkpoint_name),
+            ("Device", prediction_state.device_label),
+            ("Prediction loss", loss_text),
+        ]
+        if prediction_state.status_message is not None:
+            model_lines.append(("Status", "Checkpoint unavailable"))
+
+        text_y = model_rect.top + 46
+        for label, value in model_lines:
+            label_surface = self._small_font.render(label, True, self.theme.text_secondary)
+            value_surface = self._small_font.render(value, True, self.theme.text_primary)
+            surface.blit(label_surface, (model_rect.left + 16, text_y))
+            surface.blit(value_surface, (model_rect.left + 132, text_y))
+            text_y += 24
+
+        if prediction_state.status_message is not None:
+            status_message = self._truncate_text(prediction_state.status_message, 32)
+            status_surface = self._small_font.render(status_message, True, self.theme.scripted_agent)
+            surface.blit(status_surface, (model_rect.left + 16, model_rect.bottom - 24))
+
+        legend_top = model_rect.bottom + self.side_panel_gap
         legend_rect = pygame.Rect(origin[0], legend_top, self.info_panel_width, self.legend_panel_height)
         self._draw_panel_box(surface, legend_rect)
         legend_title = self._label_font.render("Legend", True, self.theme.text_primary)
@@ -283,6 +365,40 @@ class GridWorldViewer:
             surface.blit(line, (swatch.right + 12, line_y))
             y += row_gap
 
+    def _draw_compact_grid(
+        self,
+        surface: pygame.Surface,
+        observation: np.ndarray,
+        origin: tuple[int, int],
+        cell_size: int,
+        *,
+        is_error: bool,
+    ) -> None:
+        for row in range(self.config.local_view_size):
+            for col in range(self.config.local_view_size):
+                cell_rect = pygame.Rect(
+                    origin[0] + col * cell_size,
+                    origin[1] + row * cell_size,
+                    cell_size,
+                    cell_size,
+                )
+                if is_error:
+                    color = self.theme.accent if observation[row, col] == 1 else self.theme.empty_cell
+                    pygame.draw.rect(surface, color, cell_rect, border_radius=3)
+                    pygame.draw.rect(surface, self.theme.grid_line, cell_rect, width=1, border_radius=3)
+                    continue
+
+                is_unknown = observation[3, row, col] == 1
+                color = self.theme.unknown if is_unknown else self.theme.empty_cell
+                if observation[0, row, col] == 1:
+                    color = self.theme.obstacle
+                pygame.draw.rect(surface, color, cell_rect, border_radius=3)
+                pygame.draw.rect(surface, self.theme.grid_line, cell_rect, width=1, border_radius=3)
+                if not is_unknown and observation[1, row, col] == 1:
+                    self._draw_scripted_agent(surface, cell_rect)
+                if not is_unknown and observation[2, row, col] == 1:
+                    self._draw_observer(surface, cell_rect)
+
     def _draw_footer(self, surface: pygame.Surface) -> None:
         footer_text = "Controls: Space pause/resume  |  R reset  |  Arrow keys move  |  N single-step while paused  |  Esc exit"
         footer_surface = self._small_font.render(footer_text, True, self.theme.text_secondary)
@@ -293,3 +409,8 @@ class GridWorldViewer:
         if action is None:
             return "None"
         return action.name.title()
+
+    def _truncate_text(self, text: str, max_length: int) -> str:
+        if len(text) <= max_length:
+            return text
+        return f"{text[: max_length - 3]}..."
