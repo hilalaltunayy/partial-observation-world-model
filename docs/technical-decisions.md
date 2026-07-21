@@ -142,6 +142,25 @@ Reason:
 - Loss alone may hide failure modes in spatial prediction tasks.
 - A visual demo is especially important for a portfolio project.
 
+## Sparse Positive-Class Handling
+
+Decision:
+
+- Use capped channel-aware weighted BCE and optional balanced sequence sampling for training.
+
+Reason:
+
+- Overall binary accuracy is dominated by empty cells in this dataset and can hide poor positive-cell prediction.
+- Scripted-agent cells and some obstacle cells are sparse enough that plain BCE can under-train them.
+- Weighted BCE directly increases the penalty for missed positive cells while keeping the existing model architecture unchanged.
+- A cap on `pos_weight` keeps the loss numerically stable and prevents one rare channel from dominating optimization.
+- Optional balanced sampling increases exposure to sequences containing scripted agents without changing validation or test distributions.
+
+Constraint:
+
+- Compute prevalence and class weights using only the training split.
+- Keep validation and test sampling unchanged so comparisons remain honest.
+
 ## Explicitly Rejected or Postponed Technologies
 
 ### Docker

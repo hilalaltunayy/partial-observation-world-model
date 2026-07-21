@@ -3,17 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 try:
-    from training.world_model_training import CHANNEL_NAMES
+    from world_model_constants import CHANNEL_DISPLAY_NAMES, CHANNEL_NAMES
 except ModuleNotFoundError:  # pragma: no cover - supports `python -m src.evaluation.evaluate_world_model`
-    from src.training.world_model_training import CHANNEL_NAMES
-
-
-CHANNEL_DISPLAY_NAMES: dict[str, str] = {
-    "static_obstacles": "static obstacles",
-    "scripted_agents": "scripted agents",
-    "observer_location": "observer",
-    "out_of_bounds": "out-of-bounds / unknown",
-}
+    from src.world_model_constants import CHANNEL_DISPLAY_NAMES, CHANNEL_NAMES
 
 
 @dataclass(frozen=True)

@@ -31,6 +31,7 @@ def _build_runtime(tmp_path: Path) -> WorldModelPredictorRuntime:
         epoch=1,
         validation_metrics={"loss": 0.5, "overall_binary_accuracy": 0.5},
         training_config=training_config,
+        imbalance_settings={"loss_mode": "standard_bce", "computed_pos_weights": {}, "pos_weight_cap": 25.0},
     )
     return WorldModelPredictorRuntime.from_paths(checkpoint_path, metadata_path, device="cpu")
 

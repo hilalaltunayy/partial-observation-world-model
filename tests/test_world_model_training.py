@@ -7,6 +7,7 @@ from models.world_model import EncoderGruDecoderWorldModel, WorldModelConfig
 from training.world_model_training import (
     TrainingConfig,
     build_dataloader,
+    compute_world_model_loss,
     compute_world_model_loss_and_metrics,
     load_checkpoint,
     save_checkpoint,
@@ -116,6 +117,7 @@ def test_checkpoint_save_and_reload(tmp_path: Path) -> None:
         epoch=1,
         validation_metrics={"loss": 0.5, "overall_binary_accuracy": 0.5},
         training_config=training_config,
+        imbalance_settings={"loss_mode": "standard_bce", "computed_pos_weights": {}, "pos_weight_cap": 25.0},
     )
 
     reloaded_model = EncoderGruDecoderWorldModel(WorldModelConfig())
@@ -127,3 +129,14 @@ def test_checkpoint_save_and_reload(tmp_path: Path) -> None:
     assert payload["epoch"] == 1
     for parameter_a, parameter_b in zip(model.parameters(), reloaded_model.parameters()):
         assert torch.allclose(parameter_a, parameter_b)
+
+
+def test_weighted_bce_matches_pytorch_reference() -> None:
+    logits = torch.tensor([[[[[0.0]], [[0.5]], [[-0.5]], [[1.0]]]]], dtype=torch.float32)
+    targets = torch.tensor([[[[[1.0]], [[0.0]], [[1.0]], [[0.0]]]]], dtype=torch.float32)
+    pos_weight = torch.tensor([2.0, 3.0, 4.0, 5.0], dtype=torch.float32).view(1, 1, 4, 1, 1)
+
+    expected = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)(logits, targets)
+    actual = compute_world_model_loss(logits, targets, loss_mode="weighted_bce", pos_weight=pos_weight)
+
+    assert torch.allclose(actual, expected)

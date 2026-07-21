@@ -35,6 +35,7 @@ def _create_checkpoint_files(tmp_path: Path) -> tuple[Path, Path]:
         epoch=1,
         validation_metrics={"loss": 0.25, "overall_binary_accuracy": 0.75},
         training_config=training_config,
+        imbalance_settings={"loss_mode": "standard_bce", "computed_pos_weights": {}, "pos_weight_cap": 25.0},
     )
     return checkpoint_path, metadata_path
 

@@ -42,6 +42,7 @@ class SequenceDatasetMetadata:
     episode_count: int
     observation_shape: tuple[int, int, int]
     action_count: int
+    scripted_agent_positive_sequence_count: int
 
 
 class WorldModelSequenceDataset(Dataset[dict[str, torch.Tensor]]):
@@ -69,10 +70,12 @@ class WorldModelSequenceDataset(Dataset[dict[str, torch.Tensor]]):
         self._arrays = self._load_npz(self.data_dir / f"{split_name}.npz")
         self._validate_raw_arrays()
         self.sequence_infos = self._build_sequence_indices()
+        scripted_agent_positive_sequence_count = self._count_sequences_with_scripted_agents()
         if max_sequences is not None:
             if max_sequences <= 0:
                 raise ValueError("max_sequences must be positive when provided.")
             self.sequence_infos = self.sequence_infos[:max_sequences]
+            scripted_agent_positive_sequence_count = self._count_sequences_with_scripted_agents()
         self.metadata = SequenceDatasetMetadata(
             split_name=split_name,
             sequence_length=sequence_length,
@@ -81,6 +84,7 @@ class WorldModelSequenceDataset(Dataset[dict[str, torch.Tensor]]):
             episode_count=int(np.unique(self._arrays["episode_ids"]).shape[0]),
             observation_shape=tuple(int(value) for value in self._arrays["observations"].shape[1:]),
             action_count=len(ACTION_LABELS),
+            scripted_agent_positive_sequence_count=scripted_agent_positive_sequence_count,
         )
 
     @property
@@ -229,3 +233,11 @@ class WorldModelSequenceDataset(Dataset[dict[str, torch.Tensor]]):
             raise ValueError("Action sequence shape mismatch.")
         if np.any(actions < 0) or np.any(actions >= len(ACTION_LABELS)):
             raise ValueError("Action sequence contains invalid values.")
+
+    def _count_sequences_with_scripted_agents(self) -> int:
+        count = 0
+        for sequence_info in self.sequence_infos:
+            sequence_slice = slice(sequence_info.start_index, sequence_info.end_index)
+            if np.any(self.next_observations[sequence_slice, 1] == 1):
+                count += 1
+        return count

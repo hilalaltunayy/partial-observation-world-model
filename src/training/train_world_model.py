@@ -18,6 +18,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42, help="Deterministic training seed.")
     parser.add_argument("--learning-rate", type=float, default=1e-3, help="Adam learning rate.")
     parser.add_argument("--checkpoint-dir", type=str, default="checkpoints", help="Directory for best validation checkpoints.")
+    parser.add_argument(
+        "--loss-mode",
+        type=str,
+        default="standard_bce",
+        choices=("standard_bce", "weighted_bce"),
+        help="Loss function mode.",
+    )
+    parser.add_argument("--pos-weight-cap", type=float, default=25.0, help="Maximum positive-class weight cap.")
+    parser.add_argument("--use-balanced-sampling", action="store_true", help="Use deterministic balanced sequence sampling for training.")
+    parser.add_argument(
+        "--agent-sequence-sampling-weight",
+        type=float,
+        default=4.0,
+        help="Relative weight for sequences containing scripted-agent positives.",
+    )
     parser.add_argument("--smoke-test", action="store_true", help="Run a tiny one-epoch smoke training pass.")
     return parser.parse_args()
 
@@ -35,6 +50,10 @@ def main() -> None:
         seed=args.seed,
         checkpoint_dir=args.checkpoint_dir,
         smoke_test=args.smoke_test,
+        loss_mode=args.loss_mode,
+        pos_weight_cap=args.pos_weight_cap,
+        use_balanced_sampling=args.use_balanced_sampling,
+        agent_sequence_sampling_weight=args.agent_sequence_sampling_weight,
     )
     run_training(training_config)
 

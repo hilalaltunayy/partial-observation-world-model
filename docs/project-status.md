@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 1 completion milestone with checkpoint evaluation and prediction-backed visualization.
+Phase 1 class-imbalance correction milestone on top of the completed evaluation and prediction baseline.
 
 ## Completed Work
 
@@ -57,18 +57,25 @@ Phase 1 completion milestone with checkpoint evaluation and prediction-backed vi
   - persistence baseline comparison using the same metrics
   - Pygame integration for current-view, predicted-next, real-next, and prediction-error inspection
   - compact model-status panel with checkpoint name, device, and one-step prediction loss
+- Phase 1 class-imbalance correction milestone has been implemented:
+  - training-split-only channel prevalence and positive-weight calculation utilities
+  - configurable weighted BCE loss with capped channel-wise positive-class weights
+  - optional deterministic balanced sequence sampling for scripted-agent-positive training windows
+  - validation reporting for obstacle and scripted-agent F1 and IoU during training
+  - best-checkpoint selection based on sparse-channel mean F1 with validation loss tie-breaks
+  - Colab notebook configuration support for weighted loss and balanced sampling
 - Unit tests have been added for deterministic reset, movement, collisions, scripted motion, and local observation boundaries.
-- Unit tests now also cover dataset determinism, alignment, manifest output, save/load behavior, sequence loading, model forward shape, optimizer step, checkpoint reload, evaluation metrics, persistence baseline behavior, and prediction-state preparation.
+- Unit tests now also cover dataset determinism, alignment, manifest output, save/load behavior, sequence loading, model forward shape, optimizer step, checkpoint reload, evaluation metrics, persistence baseline behavior, prediction-state preparation, class-balance statistics, weighted loss, balanced sampling, and checkpoint-selection behavior.
 - README has been updated with local setup, visualization run instructions, dataset-generation commands, world-model training commands, and checkpoint evaluation commands.
 - Git ignore rules now keep generated `.npz` datasets out of version control while preserving repository documentation in `docs/`.
 
 ## Current Task
 
-Stabilizing the completed Phase 1 baseline after adding checkpoint evaluation and local qualitative prediction inspection.
+Improving sparse positive-cell learning without changing the Phase 1 environment, model architecture, or evaluation split distributions.
 
 ## Next Task
 
-Begin the Phase 2A planning baseline using the now-verified trained checkpoint, evaluation CLI, and prediction-enabled viewer.
+Run a full weighted Colab retraining pass, compare it against the persistence baseline again, and only then move into the Phase 2A planning baseline.
 
 ## Known Issues
 
@@ -80,6 +87,7 @@ Begin the Phase 2A planning baseline using the now-verified trained checkpoint, 
 - No planning logic exists yet.
 - The generated manifest and dataset card in `data/generated/` are reproducible outputs and should not be treated as the primary version-controlled documentation source.
 - The current prediction viewer performs one-step local prediction inspection and is not yet a full policy or planning interface.
+- The current milestone improves the training objective and sampling strategy, but it does not change the model architecture or the underlying observer policy that generated the dataset.
 
 ## Recent Decisions
 

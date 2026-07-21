@@ -10,11 +10,11 @@ from torch.utils.data import DataLoader
 try:
     from evaluation.metrics import CHANNEL_DISPLAY_NAMES, EvaluationSummary, build_channel_metrics
     from models.world_model import EncoderGruDecoderWorldModel
-    from training.world_model_training import CHANNEL_NAMES
+    from world_model_constants import CHANNEL_NAMES
 except ModuleNotFoundError:  # pragma: no cover - supports `python -m src.evaluation.evaluate_world_model`
     from src.evaluation.metrics import CHANNEL_DISPLAY_NAMES, EvaluationSummary, build_channel_metrics
     from src.models.world_model import EncoderGruDecoderWorldModel
-    from src.training.world_model_training import CHANNEL_NAMES
+    from src.world_model_constants import CHANNEL_NAMES
 
 
 def evaluate_world_model(

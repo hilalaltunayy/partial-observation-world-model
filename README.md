@@ -1,6 +1,6 @@
 # Partial Observation World Model
 
-This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation includes the deterministic environment baseline, a professional dark-themed Pygame viewer, deterministic rollout dataset generation, a local CPU-compatible world-model smoke-training scaffold, and checkpoint-based Phase 1 evaluation utilities.
+This repository contains a staged portfolio project for a partial-observation autonomous navigation system. The current implementation includes the deterministic environment baseline, a professional dark-themed Pygame viewer, deterministic rollout dataset generation, a local CPU-compatible world-model training scaffold, and checkpoint-based Phase 1 evaluation utilities.
 
 ## Local Setup
 
@@ -100,6 +100,36 @@ The training scaffold:
 - reports total loss, overall binary accuracy, and per-channel binary accuracies
 - saves the best validation checkpoint and metadata under `checkpoints/`
 
+## Class-Imbalance Correction
+
+The current dataset is highly sparse for positive cells in some channels. Before this milestone, the model could achieve high overall binary accuracy while still performing poorly on sparse positives:
+
+- scripted-agent F1 could collapse to `0`
+- obstacle recall could remain very low
+- the persistence baseline could outperform the trained model on scripted-agent F1
+
+The updated training pipeline now supports:
+
+- training-split-only channel prevalence statistics
+- channel-aware weighted BCE with capped positive-class weights
+- optional deterministic balanced sampling for scripted-agent-positive sequences
+- checkpoint selection using validation mean F1 for static obstacles and scripted agents, with validation loss as a tie-breaker
+
+### Local Weighted Smoke Test
+
+```powershell
+.venv\Scripts\python.exe -m src.training.train_world_model --data-dir data/generated --device cpu --smoke-test --loss-mode weighted_bce --pos-weight-cap 25 --use-balanced-sampling --agent-sequence-sampling-weight 4
+```
+
+### Recommended Colab Retraining Direction
+
+Use the Colab notebook with:
+
+- `loss_mode = "weighted_bce"`
+- a positive-weight cap such as `25.0`
+- `use_balanced_sampling = True`
+- an agent-sequence sampling weight such as `4.0`
+
 ## World-Model Evaluation
 
 ```powershell
@@ -138,6 +168,7 @@ Implemented now:
 - dark-themed Pygame viewer with full-grid and local-view panels
 - deterministic rollout dataset generation with manifest and dataset card
 - CPU-compatible Phase 1 world-model scaffold and smoke-training CLI
+- class-imbalance-aware weighted training and optional balanced sequence sampling
 - reusable checkpoint loading and evaluation CLI
 - checkpoint-backed Pygame prediction viewer
 - unit tests for core environment behavior
